@@ -11,44 +11,74 @@ import UIKit
 
 // layoutHorizontal(|[imageView.vf >= 20.vf]-(>=0.vf!20.vf)-[imageView.vf]-50.vf-|)
 
-protocol ViewContainingToken {
-    var firstView: UIView { get }
-    var lastView: UIView { get }
+
+@objc protocol ViewContainingToken {
+    var firstView: UIView? { get }
+    var lastView: UIView? { get }
 }
 
-struct ViewToken: ViewContainingToken {
+class ViewToken: ViewContainingToken {
     let view: ALView
-    var firstView: UIView {
+    init(view: ALView) {
+        self.view = view
+    }
+    
+    var firstView: UIView? {
     get {
         return self.view
     }
     }
-    var lastView: UIView {
+    var lastView: UIView? {
     get {
         return self.view
     }
     }
 }
-struct ConstantToken {
+class ConstantToken {
     let constant: CGFloat
     let priority: Float
+    init(constant: CGFloat, priority: Float) {
+        self.constant = constant
+        self.priority = priority
+    }
 }
 
-protocol ContraintAble {
+@objc protocol ConstraintAble {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint];
 }
 
 
-struct SizeConstantConstraintToken {
+class SizeConstantConstraintToken {
     let view: ViewToken
     let size: ConstantToken
     let relation: NSLayoutRelation
+    init(view: ViewToken, size: ConstantToken, relation: NSLayoutRelation) {
+        self.view = view
+        self.size = size
+        self.relation = relation
+    }
 }
 
-struct SizeRelationConstraintToken: ContraintAble {
+class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
     let view: ViewToken
     let relatedView: ViewToken
     let relation: NSLayoutRelation
+    init(view: ViewToken, relatedView: ViewToken, relation: NSLayoutRelation) {
+        self.view = view
+        self.relatedView = relatedView
+        self.relation = relation
+    }
+    
+    var firstView: UIView? {
+    get {
+        return self.view.view
+    }
+    }
+    var lastView: UIView? {
+    get {
+        return self.view.view
+    }
+    }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         let view = self.view.view;
@@ -69,47 +99,98 @@ struct SizeRelationConstraintToken: ContraintAble {
     }
 }
 
-struct SuperviewConstraintToken: ContraintAble {
+// |[view]
+class LeadingSuperviewConstraint: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
-    let isLeading: Bool
+    init(viewContainer: ViewContainingToken, space: ConstantToken) {
+        self.viewContainer = viewContainer
+        self.space = space
+    }
+    var firstView: UIView? {
+    get {
+        return nil // No one can bind to our first view, is the superview
+    }
+    }
+    var lastView: UIView? {
+    get {
+        return self.viewContainer.lastView
+    }
+    }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
-        var view: UIView!
-        if (self.isLeading) {
-            view = self.viewContainer.firstView
-        } else {
-            view = self.viewContainer.lastView
-        }
-        let constant = self.space.constant
-        let priority = self.space.priority
-        
-        if let superview = view.superview {
-            var constraint: NSLayoutConstraint!
+        if let view = self.viewContainer.firstView {
+            let constant = self.space.constant
+            let priority = self.space.priority
             
-            if (axis == .Horizontal) {
-                if (self.isLeading) {
-                    constraint = NSLayoutConstraint(
-                        item: superview, attribute: .Leading,
-                        relatedBy: .Equal,
-                        toItem: view, attribute: .Leading,
-                        multiplier: 1.0, constant: constant)
+            if let superview = view.superview {
+                var constraint: NSLayoutConstraint!
+                
+                if (axis == .Horizontal) {
+                        constraint = NSLayoutConstraint(
+                            item: superview, attribute: .Leading,
+                            relatedBy: .Equal,
+                            toItem: view, attribute: .Leading,
+                            multiplier: 1.0, constant: constant)
                 } else {
+                        constraint = NSLayoutConstraint(
+                            item: superview, attribute: .Top,
+                            relatedBy: .Equal,
+                            toItem: view, attribute: .Top,
+                            multiplier: 1.0, constant: constant)
+                        
+                        constraint = superview.al_top == view.al_top + constant
+                }
+                
+                constraint.priority = priority
+                if let otherConstraint = viewContainer as?  ConstraintAble {
+                    return otherConstraint.toConstraints(axis) + [constraint]
+                } else {
+                    return [constraint]
+                }
+            }
+            NSException(name: NSInvalidArgumentException, reason: "You tried to create a constraint to \(view)'s superview, but it has no superview yet!", userInfo: nil).raise()
+        }
+        NSException(name: NSInvalidArgumentException, reason: "This superview bar | was before something that doesn't have a view. Weird?", userInfo: nil).raise()
+        return [dummyConstraint] // To appease the compiler, which doesn't realize this branch dies
+    }
+    
+    
+}
+
+// [view]|
+class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
+    let viewContainer: ViewContainingToken
+    let space: ConstantToken
+    init(viewContainer: ViewContainingToken, space: ConstantToken) {
+        self.viewContainer = viewContainer
+        self.space = space
+    }
+    var firstView: UIView? {
+    get {
+        return self.viewContainer.firstView
+    }
+    }
+    var lastView: UIView? {
+    get {
+        return nil // No one can bind to our last view, is the superview
+    }
+    }
+    
+    func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
+        if let view = self.viewContainer.lastView {
+            let constant = self.space.constant
+            let priority = self.space.priority
+            
+            if let superview = view.superview {
+                var constraint: NSLayoutConstraint!
+                
+                if (axis == .Horizontal) {
                     constraint = NSLayoutConstraint(
                         item: view, attribute: .Trailing,
                         relatedBy: .Equal,
                         toItem: superview, attribute: .Trailing,
                         multiplier: 1.0, constant: constant)
-                }
-            } else {
-                if (self.isLeading) {
-                    constraint = NSLayoutConstraint(
-                        item: superview, attribute: .Top,
-                        relatedBy: .Equal,
-                        toItem: view, attribute: .Top,
-                        multiplier: 1.0, constant: constant)
-                    
-                    constraint = superview.al_top == view.al_top + constant
                 } else {
                     constraint = NSLayoutConstraint(
                         item: view, attribute: .Bottom,
@@ -117,29 +198,42 @@ struct SuperviewConstraintToken: ContraintAble {
                         toItem: superview, attribute: .Bottom,
                         multiplier: 1.0, constant: constant)
                 }
+                
+                constraint.priority = priority
+                if let otherConstraint = viewContainer as?  ConstraintAble {
+                    return otherConstraint.toConstraints(axis) + [constraint]
+                } else {
+                    return [constraint]
+                }
             }
-            
-            constraint.priority = priority
-            return [constraint]
+            NSException(name: NSInvalidArgumentException, reason: "You tried to create a constraint to \(view)'s superview, but it has no superview yet!", userInfo: nil).raise()
         }
-        NSException(name: NSInvalidArgumentException, reason: "You tried to create a constraint to \(view)'s superview, but it has no superview yet!", userInfo: nil).raise()
+        NSException(name: NSInvalidArgumentException, reason: "This superview bar | was after something that doesn't have a view. Weird?", userInfo: nil).raise()
+        
         return [dummyConstraint] // To appease the compiler, which doesn't realize this branch dies
     }
 }
 
-
 let RequiredPriority: Float = 1000 // For some reason, the linker can't find UILayoutPriorityRequired
 
 operator prefix | {}
-@prefix func | (tokenArray: [ViewToken]) -> SuperviewConstraintToken {
+@prefix func | (tokenArray: [ViewContainingToken]) -> LeadingSuperviewConstraint {
     // |[view]
-    return SuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority), isLeading: true)
+    return LeadingSuperviewConstraint(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))
+}
+@prefix func | (token: ViewContainingToken) -> LeadingSuperviewConstraint {
+    // |[view]
+    return LeadingSuperviewConstraint(viewContainer: token, space: ConstantToken(constant: 0, priority: RequiredPriority))
 }
 
 operator postfix | {}
-@postfix func | (tokenArray: [ViewToken]) -> SuperviewConstraintToken {
+@postfix func | (tokenArray: [ViewContainingToken]) -> TrailingSuperviewConstraintToken {
     // [view]|
-    return SuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority), isLeading: false)
+    return TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))
+}
+@postfix func | (token: ViewContainingToken) -> TrailingSuperviewConstraintToken {
+    // [view]|
+    return TrailingSuperviewConstraintToken(viewContainer: token, space: ConstantToken(constant: 0, priority: RequiredPriority))
 }
 
 
@@ -170,11 +264,11 @@ operator infix == {}
 let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 0)
 
 
-func layout(axis: UILayoutConstraintAxis, constraintAble: ContraintAble) -> [NSLayoutConstraint] {
+func layout(axis: UILayoutConstraintAxis, constraintAble: ConstraintAble) -> [NSLayoutConstraint] {
     return constraintAble.toConstraints(axis)
 }
 
-func layout(axis: UILayoutConstraintAxis, constraintAble: [ContraintAble]) -> [NSLayoutConstraint] {
+func layout(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraintAble[0].toConstraints(axis)
 }
 
