@@ -48,7 +48,7 @@ class ConstantToken {
 }
 
 
-class SizeConstantConstraintToken {
+class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
     let view: ViewToken
     let size: ConstantToken
     let relation: NSLayoutRelation
@@ -57,6 +57,39 @@ class SizeConstantConstraintToken {
         self.size = size
         self.relation = relation
     }
+    
+    var firstView: UIView? {
+    get {
+        return self.view.view
+    }
+    }
+    var lastView: UIView? {
+    get {
+        return self.view.view
+    }
+    }
+    
+    func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
+        let view = self.view.view;
+        let constant = self.size.constant
+        let relation = self.relation
+        
+        var attribute: NSLayoutAttribute!
+        if (axis == .Horizontal) {
+            attribute = .Width
+        } else {
+            attribute = .Height
+        }
+        let constraint = NSLayoutConstraint(
+            item: view, attribute: attribute,
+            relatedBy: self.relation,
+            toItem: nil, attribute: .NotAnAttribute,
+            multiplier: 1.0, constant: constant)
+        constraint.priority = self.size.priority
+        
+        return [constraint]
+    }
+    
 }
 
 class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
@@ -93,7 +126,7 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
         }
         return [ NSLayoutConstraint(
             item: view, attribute: attribute,
-            relatedBy: .Equal,
+            relatedBy: self.relation,
             toItem: relatedView, attribute: attribute,
             multiplier: 1.0, constant: 0) ]
     }
