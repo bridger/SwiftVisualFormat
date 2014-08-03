@@ -30,16 +30,15 @@ class ViewController: UIViewController {
 
         // |[redView][greenView][blueView]|
         
-        self.view.addConstraints(layout(.Horizontal, [redView.vf == greenView.vf] ))
-        self.view.addConstraints(layout(.Horizontal, [blueView.vf >= greenView.vf]| ))
-        self.view.addConstraints(layout(.Horizontal, |[redView.vf == 50.vf] ))
+        
+        self.view.addConstraints(layout(.Horizontal, |[redView.vf == greenView.vf]-0.vf-[greenView.vf == blueView.vf]-0.vf-[blueView.vf]| ))
+        
+        //self.view.addConstraints(layout(.Horizontal, [redView.vf == greenView.vf] ))
+        //self.view.addConstraints(layout(.Horizontal, [blueView.vf == greenView.vf]| ))
         
         self.view.addConstraints(layout(.Vertical, |[redView.vf]| ))
         self.view.addConstraints(layout(.Vertical, |[greenView.vf]| ))
         self.view.addConstraints(layout(.Vertical, |[blueView.vf]| ))
-        
-        self.view.addConstraint( redView.al_trailing == greenView.al_leading )
-        self.view.addConstraint( greenView.al_trailing == blueView.al_leading )
     }
 
     override func didReceiveMemoryWarning() {
