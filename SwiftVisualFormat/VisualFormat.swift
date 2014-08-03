@@ -17,6 +17,7 @@ import UIKit
     var lastView: UIView? { get }
 }
 
+// This is either a token that directly is a view, or is a more complex token that is a composition of tokens, like [view]-space-[view]
 class ViewToken: ViewContainingToken {
     let view: ALView
     init(view: ALView) {
@@ -37,10 +38,8 @@ class ViewToken: ViewContainingToken {
 
 class ConstantToken {
     let constant: CGFloat
-    let priority: Float
-    init(constant: CGFloat, priority: Float) {
+    init(constant: CGFloat) {
         self.constant = constant
-        self.priority = priority
     }
 }
 
@@ -86,7 +85,6 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
             relatedBy: self.relation,
             toItem: nil, attribute: .NotAnAttribute,
             multiplier: 1.0, constant: constant)
-        constraint.priority = self.size.priority
         
         return [constraint]
     }
@@ -155,7 +153,6 @@ class LeadingSuperviewConstraint: ConstraintAble, ViewContainingToken {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.firstView {
             let constant = self.space.constant
-            let priority = self.space.priority
             
             if let superview = view.superview {
                 var constraint: NSLayoutConstraint!
@@ -176,7 +173,6 @@ class LeadingSuperviewConstraint: ConstraintAble, ViewContainingToken {
                         constraint = superview.al_top == view.al_top + constant
                 }
                 
-                constraint.priority = priority
                 if let otherConstraint = viewContainer as?  ConstraintAble {
                     return otherConstraint.toConstraints(axis) + [constraint]
                 } else {
@@ -214,7 +210,6 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.lastView {
             let constant = self.space.constant
-            let priority = self.space.priority
             
             if let superview = view.superview {
                 var constraint: NSLayoutConstraint!
@@ -233,7 +228,6 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
                         multiplier: 1.0, constant: constant)
                 }
                 
-                constraint.priority = priority
                 if let otherConstraint = viewContainer as?  ConstraintAble {
                     return otherConstraint.toConstraints(axis) + [constraint]
                 } else {
@@ -253,13 +247,13 @@ let RequiredPriority: Float = 1000 // For some reason, the linker can't find UIL
 operator prefix | {}
 @prefix func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraint] {
     // |[view]
-    return [LeadingSuperviewConstraint(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))]
+    return [LeadingSuperviewConstraint(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
 }
 
 operator postfix | {}
 @postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
     // [view]|
-    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))]
+    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
 }
 
 operator infix >= {}
@@ -307,7 +301,7 @@ extension ALView {
 extension CGFloat {
     var vf: ConstantToken {
     get {
-        return ConstantToken(constant: self, priority: RequiredPriority)
+        return ConstantToken(constant: self)
     }
     }
 }
@@ -315,7 +309,7 @@ extension CGFloat {
 extension NSInteger {
     var vf: ConstantToken {
     get {
-        return ConstantToken(constant: CGFloat(self), priority: RequiredPriority)
+        return ConstantToken(constant: CGFloat(self))
     }
     }
 }
