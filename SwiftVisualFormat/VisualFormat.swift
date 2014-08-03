@@ -34,6 +34,7 @@ class ViewToken: ViewContainingToken {
     }
     }
 }
+
 class ConstantToken {
     let constant: CGFloat
     let priority: Float
@@ -250,25 +251,16 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
 let RequiredPriority: Float = 1000 // For some reason, the linker can't find UILayoutPriorityRequired
 
 operator prefix | {}
-@prefix func | (tokenArray: [ViewContainingToken]) -> LeadingSuperviewConstraint {
+@prefix func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraint] {
     // |[view]
-    return LeadingSuperviewConstraint(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))
-}
-@prefix func | (token: ViewContainingToken) -> LeadingSuperviewConstraint {
-    // |[view]
-    return LeadingSuperviewConstraint(viewContainer: token, space: ConstantToken(constant: 0, priority: RequiredPriority))
+    return [LeadingSuperviewConstraint(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))]
 }
 
 operator postfix | {}
-@postfix func | (tokenArray: [ViewContainingToken]) -> TrailingSuperviewConstraintToken {
+@postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
     // [view]|
-    return TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))
+    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0, priority: RequiredPriority))]
 }
-@postfix func | (token: ViewContainingToken) -> TrailingSuperviewConstraintToken {
-    // [view]|
-    return TrailingSuperviewConstraintToken(viewContainer: token, space: ConstantToken(constant: 0, priority: RequiredPriority))
-}
-
 
 operator infix >= {}
 @infix func >= (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
@@ -296,7 +288,6 @@ operator infix == {}
 
 let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 0)
 
-
 func layout(axis: UILayoutConstraintAxis, constraintAble: ConstraintAble) -> [NSLayoutConstraint] {
     return constraintAble.toConstraints(axis)
 }
@@ -304,7 +295,6 @@ func layout(axis: UILayoutConstraintAxis, constraintAble: ConstraintAble) -> [NS
 func layout(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraintAble[0].toConstraints(axis)
 }
-
 
 extension ALView {
     var vf: ViewToken {
@@ -329,5 +319,4 @@ extension NSInteger {
     }
     }
 }
-
 
