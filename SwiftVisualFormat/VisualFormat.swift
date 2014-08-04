@@ -6,9 +6,15 @@
 //  Copyright (c) 2014 Bridger Maxwell. All rights reserved.
 //
 
-import UIKit
+#if os(OSX)
+    import AppKit
+    public typealias ALView = NSView
+    #elseif os(iOS)
+    import UIKit
+    public typealias ALView = UIView
+#endif
 
-// layoutHorizontal(|[imageView.vf >= 20.vf]-(>=0.vf!20.vf)-[imageView.vf]-50.vf-|)
+// layoutHorizontal(|[imageView.al >= 20.al]-(>=0.al!20.al)-[imageView.al]-50.al-|)
 
 @objc protocol ConstraintAble {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint];
@@ -16,6 +22,14 @@ import UIKit
 
 func layout(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraintAble[0].toConstraints(axis)
+}
+
+func layoutHorizontal(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+    return layout(.Horizontal, constraintAble)
+}
+
+func layoutVertical(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+    return layout(.Vertical, constraintAble)
 }
 
 
@@ -334,7 +348,7 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     }
 }
 
-let RequiredPriority: Float = 1000 // For some reason, the linker can't find UILayoutPriorityRequired
+let RequiredPriority: Float = 1000 // For some reason, the linker can't find UILayoutPriorityRequired. Not sure what I am doing wrong
 
 operator prefix | {}
 @prefix func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
@@ -415,7 +429,7 @@ operator prefix |- {}
 let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 0)
 
 extension ALView {
-    var vf: ViewToken {
+    var al: ViewToken {
     get {
         return ViewToken(view: self)
     }
@@ -423,7 +437,7 @@ extension ALView {
 }
 
 extension CGFloat {
-    var vf: ConstantToken {
+    var al: ConstantToken {
     get {
         return ConstantToken(constant: self)
     }
@@ -431,7 +445,7 @@ extension CGFloat {
 }
 
 extension NSInteger {
-    var vf: ConstantToken {
+    var al: ConstantToken {
     get {
         return ConstantToken(constant: CGFloat(self))
     }

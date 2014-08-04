@@ -29,21 +29,14 @@ class ViewController: UIViewController {
         self.view.addSubview(blueView)
         
         
-        self.view.addConstraints(layout(.Horizontal, |-5.vf-[redView.vf]-0.vf-[greenView.vf]-0.vf-[blueView.vf]-5.vf-| ))
+        self.view.addConstraints(layoutHorizontal( |-5.al-[redView.al]-0.al-[greenView.al]-0.al-[blueView.al]-5.al-| ))
         
-        self.view.addConstraints(layout(.Horizontal, [redView.vf == greenView.vf] ))
-        self.view.addConstraints(layout(.Horizontal, [blueView.vf == greenView.vf] ))
+        self.view.addConstraints(layoutHorizontal( [redView.al == greenView.al] ))
+        self.view.addConstraints(layoutHorizontal( [blueView.al == greenView.al] ))
         
-        self.view.addConstraints(layout(.Vertical, |-5.vf-[redView.vf]-5.vf-| ))
-        self.view.addConstraints(layout(.Vertical, |-5.vf-[greenView.vf]-5.vf-| ))
-        self.view.addConstraints(layout(.Vertical, |-5.vf-[blueView.vf]-5.vf-| ))
+        self.view.addConstraints(layoutVertical( |-5.al-[redView.al]-5.al-| ))
+        self.view.addConstraints(layoutVertical( |-5.al-[greenView.al]-5.al-| ))
+        self.view.addConstraints(layoutVertical( |-5.al-[blueView.al]-5.al-| ))
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
 
