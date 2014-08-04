@@ -27,18 +27,16 @@ class ViewController: UIViewController {
         blueView.backgroundColor = UIColor.blueColor()
         blueView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.view.addSubview(blueView)
-
-        // |[redView][greenView][blueView]|
         
         
-        self.view.addConstraints(layout(.Horizontal, |[redView.vf == greenView.vf]-0.vf-[greenView.vf == blueView.vf]-0.vf-[blueView.vf]| ))
+        self.view.addConstraints(layout(.Horizontal, |-5.vf-[redView.vf]-0.vf-[greenView.vf]-0.vf-[blueView.vf]-5.vf-| ))
         
-        //self.view.addConstraints(layout(.Horizontal, [redView.vf == greenView.vf] ))
-        //self.view.addConstraints(layout(.Horizontal, [blueView.vf == greenView.vf]| ))
+        self.view.addConstraints(layout(.Horizontal, [redView.vf == greenView.vf] ))
+        self.view.addConstraints(layout(.Horizontal, [blueView.vf == greenView.vf] ))
         
-        self.view.addConstraints(layout(.Vertical, |[redView.vf]| ))
-        self.view.addConstraints(layout(.Vertical, |[greenView.vf]| ))
-        self.view.addConstraints(layout(.Vertical, |[blueView.vf]| ))
+        self.view.addConstraints(layout(.Vertical, |-5.vf-[redView.vf]-5.vf-| ))
+        self.view.addConstraints(layout(.Vertical, |-5.vf-[greenView.vf]-5.vf-| ))
+        self.view.addConstraints(layout(.Vertical, |-5.vf-[blueView.vf]-5.vf-| ))
     }
 
     override func didReceiveMemoryWarning() {

@@ -8,9 +8,6 @@
 
 import UIKit
 
-
-//TODO: It could work by making so 5.vf-| resolves to its own token, and so does |-5.vf. The prefix and postfix operators seem to have super precedence
-
 // layoutHorizontal(|[imageView.vf >= 20.vf]-(>=0.vf!20.vf)-[imageView.vf]-50.vf-|)
 
 @objc protocol ConstraintAble {
@@ -65,6 +62,24 @@ class ViewAndSpaceToken {
     }
 }
 
+// This is half of a space constraint, |-5
+class LeadingSuperviewAndSpaceToken {
+    let space: ConstantToken
+    let relation: NSLayoutRelation
+    init(space: ConstantToken, relation: NSLayoutRelation) {
+        self.space = space
+        self.relation = relation
+    }
+}
+// This is half of a space constraint, 5-|
+class TrailingSuperviewAndSpaceToken {
+    let space: ConstantToken
+    init(space: ConstantToken) {
+        self.space = space
+    }
+}
+
+// [view]-5-[view2]
 class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     let leadingView: ViewContainingToken
     let trailingView: ViewContainingToken
@@ -125,6 +140,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     }
 }
 
+// [view == 50]
 class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
     let view: ViewToken
     let size: ConstantToken
@@ -168,6 +184,7 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
     
 }
 
+// [view == view2]
 class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
     let view: ViewToken
     let relatedView: ViewToken
@@ -208,7 +225,7 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
     }
 }
 
-// |[view]
+// |-5-[view]
 class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
@@ -246,8 +263,6 @@ class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
                             relatedBy: .Equal,
                             toItem: superview, attribute: .Top,
                             multiplier: 1.0, constant: constant)
-                        
-                        constraint = superview.al_top == view.al_top + constant
                 }
                 
                 if let otherConstraint = viewContainer as?  ConstraintAble {
@@ -265,8 +280,8 @@ class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     
 }
 
-// [view]|
-class TrailingSuperviewConstraintTokenToken: ConstraintAble, ViewContainingToken {
+// [view]-5-|
+class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
     init(viewContainer: ViewContainingToken, space: ConstantToken) {
@@ -328,49 +343,72 @@ operator prefix | {}
 }
 
 operator postfix | {}
-@postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintTokenToken] {
+@postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
     // [view]|
-    return [TrailingSuperviewConstraintTokenToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
+    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
 }
 
 operator infix >= {}
 @infix func >= (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+    // [view >= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .GreaterThanOrEqual)
 }
 @infix func >= (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+    // [view >= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .GreaterThanOrEqual)
 }
 
 operator infix <= {}
 @infix func <= (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+    // [view <= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .LessThanOrEqual)
 }
 @infix func <= (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+    // [view <= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .LessThanOrEqual)
 }
 
 operator infix == {}
 @infix func == (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+    // [view == 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .Equal)
 }
 @infix func == (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+    // [view == view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .Equal)
 }
 
 operator infix - {}
 @infix func - (left: [ViewContainingToken], right: ConstantToken) -> ViewAndSpaceToken {
+    // [view]-5
     return ViewAndSpaceToken(view: left[0], space: right, relation: .Equal)
 }
 
 @infix func - (left: ViewAndSpaceToken, right: [ViewContainingToken]) -> [SpacedViewsConstraintToken] {
+    // [view]-5-[view2]
     return [SpacedViewsConstraintToken(leadingView: left.view, trailingView: right[0], space: left.space)]
 }
 
+@infix func - (left: [ViewContainingToken], right: TrailingSuperviewAndSpaceToken) -> [TrailingSuperviewConstraintToken] {
+    // [view]-5-|
+    return [TrailingSuperviewConstraintToken(viewContainer: left[0], space: right.space)]
+}
+
+@infix func - (left: LeadingSuperviewAndSpaceToken, right: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
+    // |-5-[view]
+    return [LeadingSuperviewConstraintToken(viewContainer: right[0], space: left.space)]
+}
 
 operator postfix -| {}
-@postfix func -| (token: ViewAndSpaceToken) -> [TrailingSuperviewConstraintTokenToken] {
-    // [view]-5-|
-    return [TrailingSuperviewConstraintTokenToken(viewContainer: token.view, space: token.space)]
+@postfix func -| (constant: ConstantToken) -> TrailingSuperviewAndSpaceToken {
+    // 5-|
+    return TrailingSuperviewAndSpaceToken(space: constant)
+}
+
+operator prefix |- {}
+@prefix func |- (constant: ConstantToken) -> LeadingSuperviewAndSpaceToken {
+    // |-5
+    return LeadingSuperviewAndSpaceToken(space: constant, relation: .Equal)
 }
 
 
