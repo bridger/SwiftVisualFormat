@@ -1,7 +1,7 @@
 Swift Visual Format Language
 ===
 
-This project is an attempt to bring the [Auto Layout Visual Format Language](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/VisualFormatLanguage/VisualFormatLanguage.html) to Swift, without requiring strings or dictionaries. It uses some crazy operator overloading instead.
+This project is an attempt to bring the [Auto Layout Visual Format Language](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/VisualFormatLanguage/VisualFormatLanguage.html) to Swift, without requiring strings or dictionaries. It uses some crazy operator overloading instead. Using it looks like this:
 
     view.addConstraints(horizontalConstraints( |-5.al-[redView.al]-0.al-[greenView.al]-0.al-[blueView.al]-5.al-|  ))
 
@@ -33,7 +33,7 @@ These examples contrast the visual format with the resulting constraints represe
   
 Okay, so maybe the width constraints are easier to read in the equation format.
 
-Drawbacks from the Objective-C API
+Drawbacks from the Objective-C / String API
 ---
 
 The Objective-C API was string-based, meaning that the visual format language was in a string with the tokens in the string mapped to views or constants via a dictionary. Accessed from Swift, this looked like this:
@@ -57,7 +57,7 @@ Because it was string-based, the language didn't have many constraints and could
 
 The Objectice-C API is also able to do the "standard space" between controls. For example `"[button]-[textField]"` creates a constraint for whatever the correct space between a button and a textField should be. There is no other API for doing this.
 
-Benefits over Objective-C API
+Benefits over Objective-C / String API
 ---
 
 There are some benefits to the Swift approach, mostly due to the fact that the compiler is involved in parsing the constraints intead of parsing a string at runtime.
@@ -75,5 +75,4 @@ To Do
 - Inequalities like >= or <= aren't supported for spaces between views. It should support `|->=5-[redView.al]-<=10-[greenView.al]-==0-|`
 - Priorities aren't supported. I am planning to use the ! operator, if it can be infix. For example, to make a high priority constraint it should look like `[redView.al]-10.al!750.al-[greenView.al]`
 - Experiment with not requiring the `.al`. It is nice to not overload the common types, but it does decrease readability.
-
 
