@@ -20,16 +20,16 @@
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint];
 }
 
-func layout(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+func constraints(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraintAble[0].toConstraints(axis)
 }
 
-func layoutHorizontal(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
-    return layout(.Horizontal, constraintAble)
+func horizontalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+    return constraints(.Horizontal, constraintAble)
 }
 
-func layoutVertical(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
-    return layout(.Vertical, constraintAble)
+func verticalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+    return constraints(.Vertical, constraintAble)
 }
 
 

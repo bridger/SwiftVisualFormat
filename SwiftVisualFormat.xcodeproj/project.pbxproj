@@ -13,7 +13,6 @@
 		AE18C9C3198BCA5600591FA5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE18C9C2198BCA5600591FA5 /* Images.xcassets */; };
 		AE18C9CF198BCA5600591FA5 /* SwiftVisualFormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE18C9CE198BCA5600591FA5 /* SwiftVisualFormatTests.swift */; };
 		AE18C9D9198BCA6300591FA5 /* VisualFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */; };
-		AE18C9DB198BD5D300591FA5 /* SwiftAutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE18C9DA198BD5D300591FA5 /* SwiftAutoLayout.swift */; };
 		AE18C9DD198BF20B00591FA5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE18C9DC198BF20B00591FA5 /* UIKit.framework */; };
 		AE18C9DF198BF22600591FA5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE18C9DE198BF22600591FA5 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -38,8 +37,7 @@
 		AE18C9C8198BCA5600591FA5 /* SwiftVisualFormatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftVisualFormatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE18C9CD198BCA5600591FA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE18C9CE198BCA5600591FA5 /* SwiftVisualFormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftVisualFormatTests.swift; sourceTree = "<group>"; };
-		AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualFormat.swift; sourceTree = "<group>"; };
-		AE18C9DA198BD5D300591FA5 /* SwiftAutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftAutoLayout.swift; sourceTree = "<group>"; };
+		AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VisualFormat.swift; path = ../VisualFormat.swift; sourceTree = "<group>"; };
 		AE18C9DC198BF20B00591FA5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		AE18C9DE198BF22600591FA5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -90,7 +88,6 @@
 				AE18C9BB198BCA5600591FA5 /* AppDelegate.swift */,
 				AE18C9BD198BCA5600591FA5 /* ViewController.swift */,
 				AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */,
-				AE18C9DA198BD5D300591FA5 /* SwiftAutoLayout.swift */,
 				AE18C9BF198BCA5600591FA5 /* Main.storyboard */,
 				AE18C9C2198BCA5600591FA5 /* Images.xcassets */,
 				AE18C9B9198BCA5600591FA5 /* Supporting Files */,
@@ -222,7 +219,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE18C9DB198BD5D300591FA5 /* SwiftAutoLayout.swift in Sources */,
 				AE18C9BE198BCA5600591FA5 /* ViewController.swift in Sources */,
 				AE18C9D9198BCA6300591FA5 /* VisualFormat.swift in Sources */,
 				AE18C9BC198BCA5600591FA5 /* AppDelegate.swift in Sources */,
@@ -413,6 +409,7 @@
 				AE18C9D4198BCA5600591FA5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		AE18C9D5198BCA5600591FA5 /* Build configuration list for PBXNativeTarget "SwiftVisualFormatTests" */ = {
 			isa = XCConfigurationList;
@@ -421,6 +418,7 @@
 				AE18C9D7198BCA5600591FA5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
