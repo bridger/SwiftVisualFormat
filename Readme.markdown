@@ -4,12 +4,16 @@ Swift Visual Format Language
 This project is an attempt to bring the [Auto Layout Visual Format Language](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/VisualFormatLanguage/VisualFormatLanguage.html) to Swift, without requiring strings or dictionaries. It uses some crazy operator overloading instead. Using it looks like this:
 
     view.addConstraints(horizontalConstraints( |-5.al-[redView.al]-0.al-[greenView.al]-0.al-[blueView.al]-5.al-|  ))
+    
+    // Make backgroundView fill its container
+    view.addConstraints(horizontalConstraints( |[backgroundView.al]| ))
+    view.addConstraints(verticalConstraints( |[backgroundView.al]| ))
 
-**This project is not finished. Nor is it necessarily a good idea. See the todo section and the drawbacks discussion.**
+**This project is not finished. Nor is it necessarily a good idea. See the todo section and the drawbacks discussion. Feel free to play around with this code, but I wouldn't use it in a project yet.**
 
-The purpose of the Visual Format Language is to make code that does layout _look_ like layout. Views are in brackets to look like rectangles `[view.al]`. Spaces between views are hyphens, like `[view.al]-5.al-[view2.al]`. A relationship to the container view is represented by a vertical bar, `|-0.al-[fullWidthView.al]-0.al-|`.
+The purpose of the Visual Format Language is to make code that does layout _look_ like layout. Views are in brackets to look like rectangles `[view.al]`. Spaces between views are hyphens, like `[view.al]-5.al-[view2.al]`. The containing view is represented by a vertical bar, `|-0.al-[fullWidthView.al]-0.al-|`.
 
-Notice the `.al` put on each view or constant. This returns an object that actually has the overloaded parameters, so I wouldn't be overloading the CGFloat `-` operator, for example.
+Notice the `.al` put on each view or constant. This returns an object that actually has the overloaded operators, so I wouldn't be overloading the CGFloat `-` operator, for example.
 
 More Examples
 ---
@@ -75,4 +79,4 @@ To Do
 - Inequalities like >= or <= aren't supported for spaces between views. It should support `|->=5-[redView.al]-<=10-[greenView.al]-==0-|`
 - Priorities aren't supported. I am planning to use the ! operator, if it can be infix. For example, to make a high priority constraint it should look like `[redView.al]-10.al!750.al-[greenView.al]`
 - Experiment with not requiring the `.al`. It is nice to not overload the common types, but it does decrease readability.
-
+- Figure out the best way to distribute this. Cocoapods? As a framework?
