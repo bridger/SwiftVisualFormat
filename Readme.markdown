@@ -75,7 +75,6 @@ Another, smaller, benefit is that it is easier to use the same format for either
  
 To Do
 ---
-- Unit tests! This will be the next thing I work on.
 - Inequalities like >= or <= aren't supported for spaces between views. It should support `|->=5-[redView.al]-<=10-[greenView.al]-==0-|`
 - Priorities aren't supported. I am planning to use the ! operator, if it can be infix. For example, to make a high priority constraint it should look like `[redView.al]-10.al!750.al-[greenView.al]`
 - Experiment with not requiring the `.al`. It is nice to not overload the common types, but it does decrease readability.

@@ -129,7 +129,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
                     trailingAttribute = .Trailing
                 } else {
                     leadingAttribute = .Top
-                    leadingAttribute = .Bottom
+                    trailingAttribute = .Bottom
                 }
                 
                 var constraints = [NSLayoutConstraint(

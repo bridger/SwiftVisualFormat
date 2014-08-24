@@ -15,6 +15,7 @@
 		AE18C9D9198BCA6300591FA5 /* VisualFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */; };
 		AE18C9DD198BF20B00591FA5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE18C9DC198BF20B00591FA5 /* UIKit.framework */; };
 		AE18C9DF198BF22600591FA5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE18C9DE198BF22600591FA5 /* Foundation.framework */; };
+		AE9486CC199DE327004DEAB2 /* VisualFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE18C9D8198BCA6300591FA5 /* VisualFormat.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -229,6 +230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE9486CC199DE327004DEAB2 /* VisualFormat.swift in Sources */,
 				AE18C9CF198BCA5600591FA5 /* SwiftVisualFormatTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
