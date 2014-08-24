@@ -28,14 +28,14 @@ class ViewController: UIViewController {
         blueView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.view.addSubview(blueView)
                 
-        self.view.addConstraints(horizontalConstraints( |-5.al-[redView.al]-0.al-[greenView.al]-0.al-[blueView.al]-5.al-| ))
+        self.view.addConstraints(horizontalConstraints( |-5-[redView]-0-[greenView]-0-[blueView]-5-| ))
         
-        self.view.addConstraints(horizontalConstraints( [redView.al == greenView.al] ))
-        self.view.addConstraints(horizontalConstraints( [blueView.al == greenView.al] ))
+        self.view.addConstraints(horizontalConstraints( [redView == greenView] ))
+        self.view.addConstraints(horizontalConstraints( [blueView == greenView] ))
         
-        self.view.addConstraints(verticalConstraints( |-5.al-[redView.al]-5.al-| ))
-        self.view.addConstraints(verticalConstraints( |-5.al-[greenView.al]-5.al-| ))
-        self.view.addConstraints(verticalConstraints( |-5.al-[blueView.al]-5.al-| ))
+        self.view.addConstraints(verticalConstraints( |-5-[redView]-5-| ))
+        self.view.addConstraints(verticalConstraints( |-5-[greenView]-5-| ))
+        self.view.addConstraints(verticalConstraints( |-5-[blueView]-5-| ))
     }
 }
 

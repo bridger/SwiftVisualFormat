@@ -34,34 +34,12 @@ func verticalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstrain
 
 
 @objc protocol ViewContainingToken {
-    var firstView: UIView? { get }
-    var lastView: UIView? { get }
+    var firstView: ALView? { get }
+    var lastView: ALView? { get }
 }
 
-// This is either a token that directly is a view, or is a more complex token that is a composition of tokens, like [view]-space-[view]
-class ViewToken: ViewContainingToken {
-    let view: ALView
-    init(view: ALView) {
-        self.view = view
-    }
-    
-    var firstView: UIView? {
-    get {
-        return self.view
-    }
-    }
-    var lastView: UIView? {
-    get {
-        return self.view
-    }
-    }
-}
-
-class ConstantToken {
-    let constant: CGFloat
-    init(constant: CGFloat) {
-        self.constant = constant
-    }
+protocol ConstantToken {
+    var ALConstant: CGFloat { get }
 }
 
 // This is half of a space constraint, [view]-space
@@ -120,7 +98,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let leadingView = self.leadingView.lastView {
             if let trailingView = self.trailingView.firstView {
-                let space = self.space.constant
+                let space = self.space.ALConstant
                 
                 var leadingAttribute: NSLayoutAttribute!
                 var trailingAttribute: NSLayoutAttribute!
@@ -156,30 +134,28 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
 
 // [view == 50]
 class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
-    let view: ViewToken
+    let view: ALView
     let size: ConstantToken
     let relation: NSLayoutRelation
-    init(view: ViewToken, size: ConstantToken, relation: NSLayoutRelation) {
+    init(view: ALView, size: ConstantToken, relation: NSLayoutRelation) {
         self.view = view
         self.size = size
         self.relation = relation
     }
     
-    var firstView: UIView? {
+    var firstView: ALView? {
     get {
-        return self.view.view
+        return self.view.firstView
     }
     }
-    var lastView: UIView? {
+    var lastView: ALView? {
     get {
-        return self.view.view
+        return self.view.lastView
     }
     }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
-        let view = self.view.view;
-        let constant = self.size.constant
-        let relation = self.relation
+        let constant = self.size.ALConstant
         
         var attribute: NSLayoutAttribute!
         if (axis == .Horizontal) {
@@ -188,7 +164,7 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
             attribute = .Height
         }
         let constraint = NSLayoutConstraint(
-            item: view, attribute: attribute,
+            item: self.view, attribute: attribute,
             relatedBy: self.relation,
             toItem: nil, attribute: .NotAnAttribute,
             multiplier: 1.0, constant: constant)
@@ -200,31 +176,27 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
 
 // [view == view2]
 class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
-    let view: ViewToken
-    let relatedView: ViewToken
+    let view: ALView
+    let relatedView: ALView
     let relation: NSLayoutRelation
-    init(view: ViewToken, relatedView: ViewToken, relation: NSLayoutRelation) {
+    init(view: ALView, relatedView: ALView, relation: NSLayoutRelation) {
         self.view = view
         self.relatedView = relatedView
         self.relation = relation
     }
     
-    var firstView: UIView? {
+    var firstView: ALView? {
     get {
-        return self.view.view
+        return self.view.firstView
     }
     }
-    var lastView: UIView? {
+    var lastView: ALView? {
     get {
-        return self.view.view
+        return self.view.lastView
     }
     }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
-        let view = self.view.view;
-        let relatedView = self.relatedView.view
-        let relation = self.relation
-        
         var attribute: NSLayoutAttribute!
         if (axis == .Horizontal) {
             attribute = .Width
@@ -232,9 +204,9 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
             attribute = .Height
         }
         return [ NSLayoutConstraint(
-            item: view, attribute: attribute,
+            item: self.view, attribute: attribute,
             relatedBy: self.relation,
-            toItem: relatedView, attribute: attribute,
+            toItem: self.relatedView, attribute: attribute,
             multiplier: 1.0, constant: 0) ]
     }
 }
@@ -260,7 +232,7 @@ class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.firstView {
-            let constant = self.space.constant
+            let constant = self.space.ALConstant
             
             if let superview = view.superview {
                 var constraint: NSLayoutConstraint!
@@ -315,7 +287,7 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.lastView {
-            let constant = self.space.constant
+            let constant = self.space.ALConstant
             
             if let superview = view.superview {
                 var constraint: NSLayoutConstraint!
@@ -353,41 +325,41 @@ let RequiredPriority: Float = 1000 // For some reason, the linker can't find UIL
 operator prefix | {}
 @prefix func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
     // |[view]
-    return [LeadingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
+    return [LeadingSuperviewConstraintToken(viewContainer: tokenArray[0], space: 0)]
 }
 
 operator postfix | {}
 @postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
     // [view]|
-    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: ConstantToken(constant: 0))]
+    return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: 0)]
 }
 
 operator infix >= {}
-@infix func >= (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+@infix func >= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view >= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .GreaterThanOrEqual)
 }
-@infix func >= (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+@infix func >= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view >= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .GreaterThanOrEqual)
 }
 
 operator infix <= {}
-@infix func <= (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+@infix func <= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view <= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .LessThanOrEqual)
 }
-@infix func <= (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+@infix func <= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view <= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .LessThanOrEqual)
 }
 
 operator infix == {}
-@infix func == (left: ViewToken, right: ConstantToken) -> SizeConstantConstraintToken {
+@infix func == (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view == 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .Equal)
 }
-@infix func == (left: ViewToken, right: ViewToken) -> SizeRelationConstraintToken {
+@infix func == (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view == view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .Equal)
 }
@@ -428,26 +400,32 @@ operator prefix |- {}
 
 let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 0)
 
-extension ALView {
-    var al: ViewToken {
+extension ALView: ViewContainingToken {
+    
+    var firstView: ALView? {
     get {
-        return ViewToken(view: self)
+        return self
+    }
+    }
+    var lastView: ALView? {
+    get {
+        return self
     }
     }
 }
 
-extension CGFloat {
-    var al: ConstantToken {
+extension CGFloat: ConstantToken {
+    var ALConstant: CGFloat {
     get {
-        return ConstantToken(constant: self)
+        return self
     }
     }
 }
 
-extension NSInteger {
-    var al: ConstantToken {
+extension NSInteger: ConstantToken {
+    var ALConstant: CGFloat {
     get {
-        return ConstantToken(constant: CGFloat(self))
+        return CGFloat(self)
     }
     }
 }

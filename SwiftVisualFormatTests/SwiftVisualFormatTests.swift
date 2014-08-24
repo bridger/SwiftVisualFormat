@@ -81,31 +81,31 @@ class SwiftVisualFormatTests: XCTestCase {
     }
     
     func testSuperviewSpace() {
-        compareHorizontalAndVerticalConstraints("|-5-[redView]", constraintAble: |-5.al-[redView.al] )
-        compareHorizontalAndVerticalConstraints("|[redView]", constraintAble: |[redView.al] )
-        compareHorizontalAndVerticalConstraints("[redView]-5-|", constraintAble: [redView.al]-5.al-| )
-        compareHorizontalAndVerticalConstraints("[redView]|", constraintAble: [redView.al]| )
+        compareHorizontalAndVerticalConstraints("|-5-[redView]", constraintAble: |-5-[redView] )
+        compareHorizontalAndVerticalConstraints("|[redView]", constraintAble: |[redView] )
+        compareHorizontalAndVerticalConstraints("[redView]-5-|", constraintAble: [redView]-5-| )
+        compareHorizontalAndVerticalConstraints("[redView]|", constraintAble: [redView]| )
         
-        compareHorizontalAndVerticalConstraints("|[redView]|", constraintAble: |[redView.al]| )
-        compareHorizontalAndVerticalConstraints("|-5-[redView]|", constraintAble: |-5.al-[redView.al]| )
-        compareHorizontalAndVerticalConstraints("|[redView]-5-|", constraintAble: |[redView.al]-5.al-| )
+        compareHorizontalAndVerticalConstraints("|[redView]|", constraintAble: |[redView]| )
+        compareHorizontalAndVerticalConstraints("|-5-[redView]|", constraintAble: |-5-[redView]| )
+        compareHorizontalAndVerticalConstraints("|[redView]-5-|", constraintAble: |[redView]-5-| )
     }
     
     func testWidthConstraints() {
-        compareHorizontalAndVerticalConstraints("[redView(==greenView)]", constraintAble: [redView.al==greenView.al] )
-        compareHorizontalAndVerticalConstraints("[redView(>=greenView)]", constraintAble: [redView.al>=greenView.al] )
-        compareHorizontalAndVerticalConstraints("[redView(<=greenView)]", constraintAble: [redView.al<=greenView.al] )
+        compareHorizontalAndVerticalConstraints("[redView(==greenView)]", constraintAble: [redView==greenView] )
+        compareHorizontalAndVerticalConstraints("[redView(>=greenView)]", constraintAble: [redView>=greenView] )
+        compareHorizontalAndVerticalConstraints("[redView(<=greenView)]", constraintAble: [redView<=greenView] )
     }
     
     func testSpaceConstraints() {
-        compareHorizontalAndVerticalConstraints("[redView]-5-[greenView]", constraintAble: [redView.al]-5.al-[greenView.al] )
-        compareHorizontalAndVerticalConstraints("[redView]-0-[greenView]", constraintAble: [redView.al]-0.al-[greenView.al] )
+        compareHorizontalAndVerticalConstraints("[redView]-5-[greenView]", constraintAble: [redView]-5-[greenView] )
+        compareHorizontalAndVerticalConstraints("[redView]-0-[greenView]", constraintAble: [redView]-0-[greenView] )
     }
     
     func testCombinedConstraints() {
-        compareHorizontalAndVerticalConstraints("|-5-[redView(>=blueView)]-10-[greenView]-15-[blueView]-20-|", constraintAble: |-5.al-[redView.al >= blueView.al]-10.al-[greenView.al]-15.al-[blueView.al]-20.al-| )
-        compareHorizontalAndVerticalConstraints("|[redView(>=blueView)]-10-[greenView]-15-[blueView]-20-|", constraintAble: |[redView.al >= blueView.al]-10.al-[greenView.al]-15.al-[blueView.al]-20.al-| )
-        compareHorizontalAndVerticalConstraints("|-5-[redView(>=blueView)]-10-[greenView]-15-[blueView]|", constraintAble: |-5.al-[redView.al >= blueView.al]-10.al-[greenView.al]-15.al-[blueView.al]| )
+        compareHorizontalAndVerticalConstraints("|-5-[redView(>=blueView)]-10-[greenView]-15-[blueView]-20-|", constraintAble: |-5-[redView >= blueView]-10-[greenView]-15-[blueView]-20-| )
+        compareHorizontalAndVerticalConstraints("|[redView(>=blueView)]-10-[greenView]-15-[blueView]-20-|", constraintAble: |[redView >= blueView]-10-[greenView]-15-[blueView]-20-| )
+        compareHorizontalAndVerticalConstraints("|-5-[redView(>=blueView)]-10-[greenView]-15-[blueView]|", constraintAble: |-5-[redView >= blueView]-10-[greenView]-15-[blueView]| )
 
     }
 }
