@@ -84,14 +84,14 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     }
     
     var firstView: UIView? {
-    get {
-        return self.leadingView.firstView
-    }
+        get {
+            return self.leadingView.firstView
+        }
     }
     var lastView: UIView? {
-    get {
-        return self.trailingView.lastView
-    }
+        get {
+            return self.trailingView.lastView
+        }
     }
     
     
@@ -128,7 +128,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
         }
         
         NSException(name: NSInvalidArgumentException, reason: "This space constraint was between two view items that couldn't fit together. Weird?", userInfo: nil).raise()
-        return [dummyConstraint] // To appease the compiler, which doesn't realize this branch dies
+        return [] // To appease the compiler, which doesn't realize this branch dies
     }
 }
 
@@ -144,14 +144,14 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
     }
     
     var firstView: ALView? {
-    get {
-        return self.view.firstView
-    }
+        get {
+            return self.view.firstView
+        }
     }
     var lastView: ALView? {
-    get {
-        return self.view.lastView
-    }
+        get {
+            return self.view.lastView
+        }
     }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
@@ -186,14 +186,14 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
     }
     
     var firstView: ALView? {
-    get {
-        return self.view.firstView
-    }
+        get {
+            return self.view.firstView
+        }
     }
     var lastView: ALView? {
-    get {
-        return self.view.lastView
-    }
+        get {
+            return self.view.lastView
+        }
     }
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
@@ -220,14 +220,14 @@ public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToke
         self.space = space
     }
     public var firstView: UIView? {
-    get {
-        return nil // No one can bind to our first view, is the superview
-    }
+        get {
+            return nil // No one can bind to our first view, is the superview
+        }
     }
     public var lastView: UIView? {
-    get {
-        return self.viewContainer.lastView
-    }
+        get {
+            return self.viewContainer.lastView
+        }
     }
     
     public func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
@@ -260,7 +260,7 @@ public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToke
             NSException(name: NSInvalidArgumentException, reason: "You tried to create a constraint to \(view)'s superview, but it has no superview yet!", userInfo: nil).raise()
         }
         NSException(name: NSInvalidArgumentException, reason: "This superview bar | was before something that doesn't have a view. Weird?", userInfo: nil).raise()
-        return [dummyConstraint] // To appease the compiler, which doesn't realize this branch dies
+        return [] // To appease the compiler, which doesn't realize this branch dies
     }
     
     
@@ -275,14 +275,14 @@ public class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingTok
         self.space = space
     }
     public var firstView: UIView? {
-    get {
-        return self.viewContainer.firstView
-    }
+        get {
+            return self.viewContainer.firstView
+        }
     }
     public var lastView: UIView? {
-    get {
-        return nil // No one can bind to our last view, is the superview
-    }
+        get {
+            return nil // No one can bind to our last view, is the superview
+        }
     }
     
     public func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
@@ -316,7 +316,7 @@ public class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingTok
         }
         NSException(name: NSInvalidArgumentException, reason: "This superview bar | was after something that doesn't have a view. Weird?", userInfo: nil).raise()
         
-        return [dummyConstraint] // To appease the compiler, which doesn't realize this branch dies
+        return [] // To appease the compiler, which doesn't realize this branch dies
     }
 }
 
@@ -394,35 +394,33 @@ prefix func |- (constant: ConstantToken) -> LeadingSuperviewAndSpaceToken {
 }
 
 
-let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 0)
-
 extension ALView: ViewContainingToken {
     
     public var firstView: ALView? {
-    get {
-        return self
-    }
+        get {
+            return self
+        }
     }
     public var lastView: ALView? {
-    get {
-        return self
-    }
+        get {
+            return self
+        }
     }
 }
 
 extension CGFloat: ConstantToken {
     var ALConstant: CGFloat {
-    get {
-        return self
-    }
+        get {
+            return self
+        }
     }
 }
 
 extension NSInteger: ConstantToken {
     var ALConstant: CGFloat {
-    get {
-        return CGFloat(self)
-    }
+        get {
+            return CGFloat(self)
+        }
     }
 }
 
