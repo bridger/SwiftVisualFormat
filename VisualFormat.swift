@@ -16,24 +16,24 @@
 
 // layoutHorizontal(|[imageView.al >= 20.al]-(>=0.al!20.al)-[imageView.al]-50.al-|)
 
-@objc protocol ConstraintAble {
+@objc public protocol ConstraintAble {
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint];
 }
 
-func constraints(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+public func constraints(axis: UILayoutConstraintAxis, constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraintAble[0].toConstraints(axis)
 }
 
-func horizontalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+public func horizontalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraints(.Horizontal, constraintAble)
 }
 
-func verticalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
+public func verticalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutConstraint] {
     return constraints(.Vertical, constraintAble)
 }
 
 
-@objc protocol ViewContainingToken {
+@objc public protocol ViewContainingToken {
     var firstView: ALView? { get }
     var lastView: ALView? { get }
 }
@@ -93,7 +93,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
         return self.trailingView.lastView
     }
     }
-
+    
     
     func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let leadingView = self.leadingView.lastView {
@@ -122,7 +122,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
                 if let trailingConstraint = self.trailingView as? ConstraintAble {
                     constraints += trailingConstraint.toConstraints(axis)
                 }
-
+                
                 return constraints
             }
         }
@@ -212,25 +212,25 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
 }
 
 // |-5-[view]
-class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
+public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
     init(viewContainer: ViewContainingToken, space: ConstantToken) {
         self.viewContainer = viewContainer
         self.space = space
     }
-    var firstView: UIView? {
+    public var firstView: UIView? {
     get {
         return nil // No one can bind to our first view, is the superview
     }
     }
-    var lastView: UIView? {
+    public var lastView: UIView? {
     get {
         return self.viewContainer.lastView
     }
     }
     
-    func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
+    public func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.firstView {
             let constant = self.space.ALConstant
             
@@ -238,17 +238,17 @@ class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
                 var constraint: NSLayoutConstraint!
                 
                 if (axis == .Horizontal) {
-                        constraint = NSLayoutConstraint(
-                            item: view, attribute: .Leading,
-                            relatedBy: .Equal,
-                            toItem: superview, attribute: .Leading,
-                            multiplier: 1.0, constant: constant)
+                    constraint = NSLayoutConstraint(
+                        item: view, attribute: .Leading,
+                        relatedBy: .Equal,
+                        toItem: superview, attribute: .Leading,
+                        multiplier: 1.0, constant: constant)
                 } else {
-                        constraint = NSLayoutConstraint(
-                            item: view, attribute: .Top,
-                            relatedBy: .Equal,
-                            toItem: superview, attribute: .Top,
-                            multiplier: 1.0, constant: constant)
+                    constraint = NSLayoutConstraint(
+                        item: view, attribute: .Top,
+                        relatedBy: .Equal,
+                        toItem: superview, attribute: .Top,
+                        multiplier: 1.0, constant: constant)
                 }
                 
                 if let otherConstraint = viewContainer as?  ConstraintAble {
@@ -267,25 +267,25 @@ class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
 }
 
 // [view]-5-|
-class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
+public class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
     init(viewContainer: ViewContainingToken, space: ConstantToken) {
         self.viewContainer = viewContainer
         self.space = space
     }
-    var firstView: UIView? {
+    public var firstView: UIView? {
     get {
         return self.viewContainer.firstView
     }
     }
-    var lastView: UIView? {
+    public var lastView: UIView? {
     get {
         return nil // No one can bind to our last view, is the superview
     }
     }
     
-    func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
+    public func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let view = self.viewContainer.lastView {
             let constant = self.space.ALConstant
             
@@ -322,77 +322,73 @@ class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
 
 let RequiredPriority: Float = 1000 // For some reason, the linker can't find UILayoutPriorityRequired. Not sure what I am doing wrong
 
-operator prefix | {}
-@prefix func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
+prefix operator | {}
+prefix public func | (tokenArray: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
     // |[view]
     return [LeadingSuperviewConstraintToken(viewContainer: tokenArray[0], space: 0)]
 }
 
-operator postfix | {}
-@postfix func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
+postfix operator | {}
+postfix public func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewConstraintToken] {
     // [view]|
     return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: 0)]
 }
 
-operator infix >= {}
-@infix func >= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func >= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view >= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .GreaterThanOrEqual)
 }
-@infix func >= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func >= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view >= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .GreaterThanOrEqual)
 }
 
-operator infix <= {}
-@infix func <= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func <= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view <= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .LessThanOrEqual)
 }
-@infix func <= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func <= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view <= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .LessThanOrEqual)
 }
 
-operator infix == {}
-@infix func == (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func == (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view == 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .Equal)
 }
-@infix func == (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func == (left: ALView, right: ALView) -> SizeRelationConstraintToken {
     // [view == view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .Equal)
 }
 
-operator infix - {}
-@infix func - (left: [ViewContainingToken], right: ConstantToken) -> ViewAndSpaceToken {
+func - (left: [ViewContainingToken], right: ConstantToken) -> ViewAndSpaceToken {
     // [view]-5
     return ViewAndSpaceToken(view: left[0], space: right, relation: .Equal)
 }
 
-@infix func - (left: ViewAndSpaceToken, right: [ViewContainingToken]) -> [SpacedViewsConstraintToken] {
+func - (left: ViewAndSpaceToken, right: [ViewContainingToken]) -> [SpacedViewsConstraintToken] {
     // [view]-5-[view2]
     return [SpacedViewsConstraintToken(leadingView: left.view, trailingView: right[0], space: left.space)]
 }
 
-@infix func - (left: [ViewContainingToken], right: TrailingSuperviewAndSpaceToken) -> [TrailingSuperviewConstraintToken] {
+func - (left: [ViewContainingToken], right: TrailingSuperviewAndSpaceToken) -> [TrailingSuperviewConstraintToken] {
     // [view]-5-|
     return [TrailingSuperviewConstraintToken(viewContainer: left[0], space: right.space)]
 }
 
-@infix func - (left: LeadingSuperviewAndSpaceToken, right: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
+func - (left: LeadingSuperviewAndSpaceToken, right: [ViewContainingToken]) -> [LeadingSuperviewConstraintToken] {
     // |-5-[view]
     return [LeadingSuperviewConstraintToken(viewContainer: right[0], space: left.space)]
 }
 
-operator postfix -| {}
-@postfix func -| (constant: ConstantToken) -> TrailingSuperviewAndSpaceToken {
+postfix operator -| {}
+postfix func -| (constant: ConstantToken) -> TrailingSuperviewAndSpaceToken {
     // 5-|
     return TrailingSuperviewAndSpaceToken(space: constant)
 }
 
-operator prefix |- {}
-@prefix func |- (constant: ConstantToken) -> LeadingSuperviewAndSpaceToken {
+prefix operator |- {}
+prefix func |- (constant: ConstantToken) -> LeadingSuperviewAndSpaceToken {
     // |-5
     return LeadingSuperviewAndSpaceToken(space: constant, relation: .Equal)
 }
@@ -402,12 +398,12 @@ let dummyConstraint = NSLayoutConstraint(item: nil, attribute: .NotAnAttribute, 
 
 extension ALView: ViewContainingToken {
     
-    var firstView: ALView? {
+    public var firstView: ALView? {
     get {
         return self
     }
     }
-    var lastView: ALView? {
+    public var lastView: ALView? {
     get {
         return self
     }
