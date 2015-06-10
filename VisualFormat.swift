@@ -8,10 +8,10 @@
 
 #if os(OSX)
     import AppKit
-    public typealias ALView = NSView
+    public typealias ALVFView = NSView
     #elseif os(iOS)
     import UIKit
-    public typealias ALView = UIView
+    public typealias ALVFView = UIView
 #endif
 
 // layoutHorizontal(|[imageView.al >= 20.al]-(>=0.al!20.al)-[imageView.al]-50.al-|)
@@ -34,8 +34,8 @@ public func verticalConstraints(constraintAble: [ConstraintAble]) -> [NSLayoutCo
 
 
 @objc public protocol ViewContainingToken {
-    var firstView: ALView? { get }
-    var lastView: ALView? { get }
+    var firstView: ALVFView? { get }
+    var lastView: ALVFView? { get }
 }
 
 protocol ConstantToken {
@@ -72,7 +72,7 @@ class TrailingSuperviewAndSpaceToken {
 }
 
 // [view]-5-[view2]
-class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
+@objc class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     let leadingView: ViewContainingToken
     let trailingView: ViewContainingToken
     let space: ConstantToken
@@ -95,7 +95,7 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
     }
     
     
-    func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
+    @objc func toConstraints(axis: UILayoutConstraintAxis) -> [NSLayoutConstraint] {
         if let leadingView = self.leadingView.lastView {
             if let trailingView = self.trailingView.firstView {
                 let space = self.space.ALConstant
@@ -133,22 +133,22 @@ class SpacedViewsConstraintToken: ConstraintAble, ViewContainingToken {
 }
 
 // [view == 50]
-class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
-    let view: ALView
+@objc class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
+    let view: ALVFView
     let size: ConstantToken
     let relation: NSLayoutRelation
-    init(view: ALView, size: ConstantToken, relation: NSLayoutRelation) {
+    init(view: ALVFView, size: ConstantToken, relation: NSLayoutRelation) {
         self.view = view
         self.size = size
         self.relation = relation
     }
     
-    var firstView: ALView? {
+    var firstView: ALVFView? {
         get {
             return self.view.firstView
         }
     }
-    var lastView: ALView? {
+    var lastView: ALVFView? {
         get {
             return self.view.lastView
         }
@@ -175,22 +175,22 @@ class SizeConstantConstraintToken: ConstraintAble, ViewContainingToken {
 }
 
 // [view == view2]
-class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
-    let view: ALView
-    let relatedView: ALView
+@objc class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
+    let view: ALVFView
+    let relatedView: ALVFView
     let relation: NSLayoutRelation
-    init(view: ALView, relatedView: ALView, relation: NSLayoutRelation) {
+    init(view: ALVFView, relatedView: ALVFView, relation: NSLayoutRelation) {
         self.view = view
         self.relatedView = relatedView
         self.relation = relation
     }
     
-    var firstView: ALView? {
+    var firstView: ALVFView? {
         get {
             return self.view.firstView
         }
     }
-    var lastView: ALView? {
+    var lastView: ALVFView? {
         get {
             return self.view.lastView
         }
@@ -212,7 +212,7 @@ class SizeRelationConstraintToken: ConstraintAble, ViewContainingToken {
 }
 
 // |-5-[view]
-public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
+@objc public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
     init(viewContainer: ViewContainingToken, space: ConstantToken) {
@@ -267,7 +267,7 @@ public class LeadingSuperviewConstraintToken: ConstraintAble, ViewContainingToke
 }
 
 // [view]-5-|
-public class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
+@objc public class TrailingSuperviewConstraintToken: ConstraintAble, ViewContainingToken {
     let viewContainer: ViewContainingToken
     let space: ConstantToken
     init(viewContainer: ViewContainingToken, space: ConstantToken) {
@@ -334,29 +334,29 @@ postfix public func | (tokenArray: [ViewContainingToken]) -> [TrailingSuperviewC
     return [TrailingSuperviewConstraintToken(viewContainer: tokenArray[0], space: 0)]
 }
 
-func >= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func >= (left: ALVFView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view >= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .GreaterThanOrEqual)
 }
-func >= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func >= (left: ALVFView, right: ALVFView) -> SizeRelationConstraintToken {
     // [view >= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .GreaterThanOrEqual)
 }
 
-func <= (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func <= (left: ALVFView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view <= 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .LessThanOrEqual)
 }
-func <= (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func <= (left: ALVFView, right: ALVFView) -> SizeRelationConstraintToken {
     // [view <= view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .LessThanOrEqual)
 }
 
-func == (left: ALView, right: ConstantToken) -> SizeConstantConstraintToken {
+func == (left: ALVFView, right: ConstantToken) -> SizeConstantConstraintToken {
     // [view == 50]
     return SizeConstantConstraintToken(view: left, size: right, relation: .Equal)
 }
-func == (left: ALView, right: ALView) -> SizeRelationConstraintToken {
+func == (left: ALVFView, right: ALVFView) -> SizeRelationConstraintToken {
     // [view == view2]
     return SizeRelationConstraintToken(view: left, relatedView: right, relation: .Equal)
 }
@@ -394,14 +394,14 @@ prefix func |- (constant: ConstantToken) -> LeadingSuperviewAndSpaceToken {
 }
 
 
-extension ALView: ViewContainingToken {
+extension ALVFView: ViewContainingToken {
     
-    public var firstView: ALView? {
+    public var firstView: ALVFView? {
         get {
             return self
         }
     }
-    public var lastView: ALView? {
+    public var lastView: ALVFView? {
         get {
             return self
         }
