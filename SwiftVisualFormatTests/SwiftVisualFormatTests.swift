@@ -20,24 +20,24 @@ class SwiftVisualFormatTests: XCTestCase {
         super.setUp()
         
         let containerView = UIView()
-        containerView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
         self.containerView = containerView
         
         let redView = UIView()
         redView.backgroundColor = UIColor.redColor()
-        redView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        redView.translatesAutoresizingMaskIntoConstraints = false
         self.containerView.addSubview(redView)
         self.redView = redView
         
         let greenView = UIView()
         greenView.backgroundColor = UIColor.greenColor()
-        greenView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        greenView.translatesAutoresizingMaskIntoConstraints = false
         self.containerView.addSubview(greenView)
         self.greenView = greenView
         
         let blueView = UIView()
         blueView.backgroundColor = UIColor.blueColor()
-        blueView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        blueView.translatesAutoresizingMaskIntoConstraints = false
         self.containerView.addSubview(blueView)
         self.blueView = blueView
     }
@@ -47,9 +47,9 @@ class SwiftVisualFormatTests: XCTestCase {
         super.tearDown()
     }
     
-    func compareConstraints(visualFormatString: NSString, checkedConstraints: [NSLayoutConstraint]) {
+    func compareConstraints(visualFormatString: String, checkedConstraints: [NSLayoutConstraint]) {
         let views = ["redView" : redView, "blueView" : blueView, "greenView" : greenView]
-        let referenceConstraints = NSLayoutConstraint.constraintsWithVisualFormat(visualFormatString, options: nil, metrics: nil, views: views) as [NSLayoutConstraint]
+        let referenceConstraints = NSLayoutConstraint.constraintsWithVisualFormat(visualFormatString, options: [], metrics: [], views: views) as [NSLayoutConstraint]
         
         XCTAssertEqual(countElements(checkedConstraints), countElements(referenceConstraints), "The correct amount of constraints wasn't created")
         
@@ -75,9 +75,9 @@ class SwiftVisualFormatTests: XCTestCase {
         }
     }
     
-    func compareHorizontalAndVerticalConstraints(formatString: NSString, constraintAble: [ConstraintAble]) {
-        compareConstraints("H:" + formatString, checkedConstraints: constraints(.Horizontal, constraintAble))
-        compareConstraints("V:" + formatString, checkedConstraints: constraints(.Vertical, constraintAble))
+    func compareHorizontalAndVerticalConstraints(formatString: String, constraintAble: [ConstraintAble]) {
+        compareConstraints("H:" + formatString, checkedConstraints: constraints(.Horizontal, constraintAble: constraintAble))
+        compareConstraints("V:" + formatString, checkedConstraints: constraints(.Vertical, constraintAble: constraintAble))
     }
     
     func testSuperviewSpace() {

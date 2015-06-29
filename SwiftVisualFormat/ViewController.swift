@@ -15,17 +15,17 @@ class ViewController: UIViewController {
         
         let redView = UIView()
         redView.backgroundColor = UIColor.redColor()
-        redView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        redView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(redView)
         
         let greenView = UIView()
         greenView.backgroundColor = UIColor.greenColor()
-        greenView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        greenView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(greenView)
         
         let blueView = UIView()
         blueView.backgroundColor = UIColor.blueColor()
-        blueView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        blueView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(blueView)
                 
         self.view.addConstraints(horizontalConstraints( |-5-[redView]-0-[greenView]-0-[blueView]-5-| ))
