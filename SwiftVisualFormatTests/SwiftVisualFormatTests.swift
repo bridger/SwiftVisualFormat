@@ -49,9 +49,9 @@ class SwiftVisualFormatTests: XCTestCase {
     
     func compareConstraints(visualFormatString: String, checkedConstraints: [NSLayoutConstraint]) {
         let views = ["redView" : redView, "blueView" : blueView, "greenView" : greenView]
-        let referenceConstraints = NSLayoutConstraint.constraintsWithVisualFormat(visualFormatString, options: [], metrics: [], views: views) as [NSLayoutConstraint]
+        let referenceConstraints = NSLayoutConstraint.constraintsWithVisualFormat(visualFormatString, options: [], metrics: nil, views: views) as [NSLayoutConstraint]
         
-        XCTAssertEqual(countElements(checkedConstraints), countElements(referenceConstraints), "The correct amount of constraints wasn't created")
+        XCTAssertEqual(checkedConstraints.count, referenceConstraints.count, "The correct amount of constraints wasn't created")
         
         for constraint in referenceConstraints {
             
