@@ -165,6 +165,7 @@
 		AE18C9AE198BCA5600591FA5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = "Bridger Maxwell";
 				TargetAttributes = {
